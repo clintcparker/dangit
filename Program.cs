@@ -93,8 +93,12 @@ public class Maple
 
     private List<ToolVersion> GetToolsFromFile(string file)
     {
-        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", ".dotnet-tool-versions");
-        var lines = File.ReadAllLines(path);
+        if (!Path.Exists(file))
+        {
+            AnsiConsole.MarkupLine($"[yellow on red]File not found: {file}[/]");
+            return new List<ToolVersion>();
+        }
+        var lines = File.ReadAllLines(file);
         return ParseTools(lines);
     }
 
@@ -120,6 +124,12 @@ public class Maple
 
     private void PrintTools(List<ToolVersion> toolVersions)
     {
+        if (toolVersions.Count == 0)
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[yellow on red]No tools found[/]");
+            return;
+        }
         //write the tools to the console as a table
         var table = new Table();
         var packageColumn = new TableColumn("Package Id");
