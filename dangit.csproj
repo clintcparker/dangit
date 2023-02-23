@@ -9,7 +9,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dngt</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <AssemblyName>dngt</AssemblyName>
+    <AssemblyName>dangit</AssemblyName>
     <PackageTags>dotnet tools;tools;global;global tools;</PackageTags>
     <Description>
       Dangit is a tool for managing dotnet global tools
