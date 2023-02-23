@@ -105,7 +105,7 @@ Options:
 
 
 #### Config file
-The tool uses a file (defaulted to  `$HOME/.config/.dotnet-tool-versions) to easily export and restore your setup. An alternate file can be used if needed.
+The tool uses a file (defaulted to  `$HOME/.config/.dotnet-tool-versions`) to easily export and restore your setup. An alternate file can be used if needed.
 
 The structure is really simple, just tool name and version, so the values can be passed back easily to the `dotnet tool` command behind the scenes. The file path is similar to the tool-manifest, so that's nice. 
 
