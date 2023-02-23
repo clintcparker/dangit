@@ -31,17 +31,6 @@ public class Maple
         Shell = new ShellConfigurator(_bridgeSystem, _notificationSystem);
     }
 
-    private Option<bool> DebugOption()
-    {
-        var debug = new Option<bool>("--debug", "Enable debug logging, defaults to false.");
-        debug.AddValidator(result =>
-        {
-            _debug = result.GetValueOrDefault<bool>();
-        });
-        debug.IsHidden = true;
-        return debug;
-    }
-
     public int Run(string[] args)
     {
         RootCommand rootCommand = new RootCommand(_description);
@@ -187,10 +176,7 @@ public class Maple
         table.AddRow(dashes);
         table.ShowHeaders = true;
         table.NoBorder();
-        foreach (var toolVersion in toolVersions)
-        {
-            table.AddRow(toolVersion.PackageId, toolVersion.Version);
-        }
+        toolVersions.ForEach(x => table.AddRow(x.PackageId, x.Version));
         AnsiConsole.Write(table);
     }
 
@@ -201,5 +187,16 @@ public class Maple
         {
             AnsiConsole.MarkupLine($"[yellow on red]{message}[/]");
         }
+    }
+
+    private Option<bool> DebugOption()
+    {
+        var debug = new Option<bool>("--debug", "Enable debug logging, defaults to false.");
+        debug.AddValidator(result =>
+        {
+            _debug = result.GetValueOrDefault<bool>();
+        });
+        debug.IsHidden = true;
+        return debug;
     }
 }
