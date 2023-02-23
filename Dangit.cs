@@ -67,7 +67,8 @@ public class Dangit
                 AnsiConsole.MarkupLine($"Creating file: {path}");
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
             }
-            File.WriteAllLines(path, toolVersions.Select(x => $"{x.PackageId.PadRight(35)}\t{x.Version}"));
+            var packageWidth = toolVersions.Max(x => x.PackageId.Length) + 5;
+            File.WriteAllLines(path, toolVersions.Select(x => $"{x.PackageId.PadRight(packageWidth)}\t{x.Version}"));
         } catch (Exception e) {
             PrintError($"[yellow on red]Error writing to file: {file}{Environment.NewLine}{Environment.NewLine}{e.Message}[/]");
         }
