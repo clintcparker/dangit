@@ -1,4 +1,4 @@
-namespace Maple;
+namespace Dangit;
 
 public class ToolVersion
 {

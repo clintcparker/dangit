@@ -7,9 +7,14 @@
     <Nullable>disable</Nullable>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>maple</ToolCommandName>
+    <ToolCommandName>dngt</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <AssemblyName>maple</AssemblyName>
+    <AssemblyName>dngt</AssemblyName>
+    <PackageTags>dotnet tools;tools;global;global tools;</PackageTags>
+    <Description>
+      Dangit is a tool for managing dotnet global tools
+    </Description>
+    <Authors>Clint Parker</Authors>
   </PropertyGroup>
 
   <ItemGroup>

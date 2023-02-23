@@ -1,11 +1,11 @@
-﻿namespace Maple;
+﻿namespace Dangit;
 
 internal class Program
 {
     static int Main(string[] args)
     {
         
-        return new Maple().Run(args);
+        return new Dangit().Run(args);
     }
 }
 

@@ -4,18 +4,18 @@ using ToolBox.Bridge;
 using ToolBox.Notification;
 using ToolBox.Platform;
 
-namespace Maple;
+namespace Dangit;
 
-public class Maple
+public class Dangit
 {
     private bool _debug = false;
     public static INotificationSystem _notificationSystem { get; set; }
     public static IBridgeSystem _bridgeSystem { get; set; }
     private ShellConfigurator Shell { get; }
-    private string _description = "Maple is a tool for managing global dotnet tools";
+    private string _description = "Dangit is a tool for managing dotnet global tools";
     private Func<string> _getDefaultFile = () => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", ".dotnet-tool-versions");
 
-    public Maple()
+    public Dangit()
     {
         _notificationSystem = NotificationSystem.Default;
         switch (OS.GetCurrent())
