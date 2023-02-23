@@ -60,6 +60,11 @@ public class Dangit
     public void Export(string file)
     {
         var toolVersions = GetToolsFromCLI();
+        if (toolVersions.Count == 0)
+        {
+            PrintError("[yellow on red]No tools found[/]");
+            return;
+        }
         try {
             var path = Path.GetFullPath(file);
             if (!Path.Exists(path) && file == _getDefaultFile())

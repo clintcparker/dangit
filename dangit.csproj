@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 
+    <Version>1.0.1</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dngt</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
@@ -15,6 +16,12 @@
       Dangit is a tool for managing dotnet global tools
     </Description>
     <Authors>Clint Parker</Authors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) Clint Parker 2023</Copyright>
+    <RepositoryUrl>https://github.com/clintcparker/dangit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/clintcparker/dangit</PackageProjectUrl>
+    <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,5 +29,10 @@
     <PackageReference Include="Spectre.Console" Version="0.46.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath>README.md</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>
