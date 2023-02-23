@@ -73,7 +73,12 @@ public class Maple
         var toolVersions = GetToolsFromCLI();
         try {
             var path = Path.GetFullPath(file);
-             File.WriteAllLines(path, toolVersions.Select(x => $"{x.PackageId}\t\t{x.Version}"));
+            if (!Path.Exists(path) && file == _getDefaultFile())
+            {
+                AnsiConsole.MarkupLine($"Creating file: {path}");
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            }
+            File.WriteAllLines(path, toolVersions.Select(x => $"{x.PackageId.PadRight(35)}\t{x.Version}"));
         } catch (Exception e) {
             PrintError($"[yellow on red]Error writing to file: {file}{Environment.NewLine}{Environment.NewLine}{e.Message}[/]");
         }
@@ -91,7 +96,7 @@ public class Maple
 
     public void Update(bool noExport, string file)
     {
-        if (AnsiConsole.Confirm("Are you sure you want to update all of your global dotnet tools?"))
+        if (!AnsiConsole.Confirm("Are you sure you want to update all of your global dotnet tools?"))
         {
             Console.WriteLine("Aborting");
             return;
@@ -99,7 +104,8 @@ public class Maple
         List<ToolVersion> toolVersions = GetToolsFromCLI();
         foreach (var toolVersion in toolVersions)
         {
-            Exec($"dotnet tool update {toolVersion.PackageId} --global");
+            var r = Exec($"dotnet tool update {toolVersion.PackageId} --global");
+            AnsiConsole.MarkupLine(r.stdout.Trim());
         }
         if (!noExport)
         {
@@ -162,8 +168,8 @@ public class Maple
             PrintError("[yellow on red]No tools found[/]");
             return;
         }
-        //write the tools to the console as a table
         var table = new Table();
+
         var packageColumn = new TableColumn("Package Id");
         packageColumn.Alignment = Justify.Left;
         packageColumn.Width = toolVersions.Max(x => x.PackageId.Length) + 5;
@@ -176,6 +182,7 @@ public class Maple
         versionColumn.Width = toolVersions.Max(x => x.Version.Length);
         versionColumn.NoWrap = true;
         table.AddColumn(versionColumn);
+
         string[] dashes = table.Columns.Select(x => new string('-', x.Width.Value)).ToArray();
         table.AddRow(dashes);
         table.ShowHeaders = true;
