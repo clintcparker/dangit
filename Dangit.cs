@@ -34,7 +34,7 @@ public class Dangit
     public int Run(string[] args)
     {
         RootCommand rootCommand = new RootCommand(_description);
-        var fileOption = new Option<string>("--file", _getDefaultFile , "The file to use for export and restore");
+        var fileOption = new Option<string>("--file", _getDefaultFile, "The file to use for export and restore");
         fileOption.LegalFilePathsOnly();
         rootCommand.AddGlobalOption(fileOption);
         var export = new Command("export", "Export the current global dotnet tools to a file");
@@ -59,13 +59,22 @@ public class Dangit
 
     public void Export(string file)
     {
-        var toolVersions = GetToolsFromCLI();
+        List<ToolVersion> toolVersions = new List<ToolVersion>();
+        for (int i = 0; i < 5; i++)
+        {
+            toolVersions = GetToolsFromCLI();
+            if (toolVersions.Count > 0)
+            {
+                break;
+            }
+        }
         if (toolVersions.Count == 0)
         {
             PrintError("[yellow on red]No tools found[/]");
             return;
         }
-        try {
+        try
+        {
             var path = Path.GetFullPath(file);
             if (!Path.Exists(path) && file == _getDefaultFile())
             {
@@ -74,7 +83,9 @@ public class Dangit
             }
             var packageWidth = toolVersions.Max(x => x.PackageId.Length) + 5;
             File.WriteAllLines(path, toolVersions.Select(x => $"{x.PackageId.PadRight(packageWidth)}\t{x.Version}"));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             PrintError($"[yellow on red]Error writing to file: {file}{Environment.NewLine}{Environment.NewLine}{e.Message}[/]");
         }
     }
@@ -99,8 +110,11 @@ public class Dangit
         List<ToolVersion> toolVersions = GetToolsFromCLI();
         foreach (var toolVersion in toolVersions)
         {
-            var r = Exec($"dotnet tool update {toolVersion.PackageId} --global");
-            AnsiConsole.MarkupLine(r.stdout.Trim());
+            var r = Exec($"dotnet tool update {toolVersion.PackageId} --global", $"Tool '{toolVersion.PackageId}'");
+            if (!String.IsNullOrWhiteSpace(r.stdout.Trim()))
+            {
+                AnsiConsole.MarkupLine(r.stdout.Trim());
+            }
         }
         if (!noExport)
         {
@@ -145,14 +159,14 @@ public class Dangit
         return toolVersions;
     }
 
-    private Response Exec(string cmd)
+    private Response Exec(string cmd, string ErrorId = "")
     {
         if (_debug)
         {
             AnsiConsole.MarkupLine($"[blue]Running command: {cmd}[/]");
         }
-        var r = Shell.Term(cmd);
-        PrintError(r.stderr);
+        var r = Shell.Term(cmd, Output.Hidden);
+        PrintError(r.stderr.Trim(), ErrorId);
         return r;
     }
 
@@ -186,12 +200,16 @@ public class Dangit
         AnsiConsole.Write(table);
     }
 
-    private void PrintError(string message)
+    private void PrintError(string message, string ErrorId = "")
     {
+        if (!string.IsNullOrEmpty(ErrorId))
+        {
+            ErrorId = $"{ErrorId}: ";
+        }
         message = message.Trim();
         if (!string.IsNullOrEmpty(message))
         {
-            AnsiConsole.MarkupLine($"[yellow on red]{message}[/]");
+            AnsiConsole.MarkupLine($"[yellow on red]{ErrorId}{message}[/]");
         }
     }
 
