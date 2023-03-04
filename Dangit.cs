@@ -71,7 +71,6 @@ public class Dangit
 
     public void Restore(string file)
     {
-        var _notificationSystem = ToolBox.Notification.NotificationSystem.Default;
         List<ToolVersion> toolVersions = GetToolsFromFile(file);
         foreach (var toolVersion in toolVersions)
         {
