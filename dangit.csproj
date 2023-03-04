@@ -23,7 +23,11 @@
     <PackageProjectUrl>https://github.com/clintcparker/dangit</PackageProjectUrl>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Reference Include="$(MSBuildExtensionsPath)\dotnet.dll" />
+    <Reference Include="$(MSBuildExtensionsPath)\Microsoft.DotNet.Cli.Utils.dll" />
+    <Reference Include="$(MSBuildExtensionsPath)\NuGet.Frameworks.dll" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dein.ToolBox" Version="1.11.0" />
     <PackageReference Include="Spectre.Console" Version="0.46.0" />

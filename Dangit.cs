@@ -1,35 +1,14 @@
 using System.CommandLine;
 using Spectre.Console;
-using ToolBox.Bridge;
-using ToolBox.Notification;
-using ToolBox.Platform;
+using Microsoft.DotNet.CommandFactory;
 
 namespace Dangit;
 
 public class Dangit
 {
     private bool _debug = false;
-    public static INotificationSystem _notificationSystem { get; set; }
-    public static IBridgeSystem _bridgeSystem { get; set; }
-    private ShellConfigurator Shell { get; }
     private string _description = "Dangit is a tool for managing dotnet global tools";
     private Func<string> _getDefaultFile = () => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config", ".dotnet-tool-versions");
-
-    public Dangit()
-    {
-        _notificationSystem = NotificationSystem.Default;
-        switch (OS.GetCurrent())
-        {
-            case "win":
-                _bridgeSystem = BridgeSystem.Bat;
-                break;
-            case "mac":
-            case "gnu":
-                _bridgeSystem = BridgeSystem.Bash;
-                break;
-        }
-        Shell = new ShellConfigurator(_bridgeSystem, _notificationSystem);
-    }
 
     public int Run(string[] args)
     {
@@ -62,7 +41,7 @@ public class Dangit
         List<ToolVersion> toolVersions = new List<ToolVersion>();
         for (int i = 0; i < 5; i++)
         {
-            toolVersions = GetToolsFromCLI();
+            toolVersions = GetInstalledTools();
             if (toolVersions.Count > 0)
             {
                 break;
@@ -96,7 +75,7 @@ public class Dangit
         List<ToolVersion> toolVersions = GetToolsFromFile(file);
         foreach (var toolVersion in toolVersions)
         {
-            Exec($"dotnet tool install {toolVersion.PackageId} --version {toolVersion.Version} --global");
+            var r = new CommandFactory().Create("dotnet", new string[] { "tool", "install", toolVersion.PackageId, "--version", toolVersion.Version, "--global" }).Execute();
         }
     }
 
@@ -107,13 +86,13 @@ public class Dangit
             Console.WriteLine("Aborting");
             return;
         }
-        List<ToolVersion> toolVersions = GetToolsFromCLI();
+        List<ToolVersion> toolVersions = GetInstalledTools();
         foreach (var toolVersion in toolVersions)
         {
-            var r = Exec($"dotnet tool update {toolVersion.PackageId} --global", $"Tool '{toolVersion.PackageId}'");
-            if (!String.IsNullOrWhiteSpace(r.stdout.Trim()))
+            var r = new CommandFactory().Create("dotnet", new string[] { "tool", "update", toolVersion.PackageId, "--global" }).Execute();
+            if (!String.IsNullOrWhiteSpace(r.StdOut))
             {
-                AnsiConsole.MarkupLine(r.stdout.Trim());
+                AnsiConsole.MarkupLine(r.StdOut.Trim());
             }
         }
         if (!noExport)
@@ -124,7 +103,7 @@ public class Dangit
 
     public void List(bool installed, string file)
     {
-        List<ToolVersion> toolVersions = installed ? GetToolsFromCLI() : GetToolsFromFile(file);
+        List<ToolVersion> toolVersions = installed ? GetInstalledTools() : GetToolsFromFile(file);
         PrintTools(toolVersions);
     }
 
@@ -139,10 +118,12 @@ public class Dangit
         return ParseTools(lines);
     }
 
-    private List<ToolVersion> GetToolsFromCLI()
+    private List<ToolVersion> GetInstalledTools()
     {
-        var r = Exec("dotnet tool list --global");
-        var lines = r.stdout.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+        var command = new CommandFactory().Create("dotnet", new string[] { "tool", "list", "--global" });
+        command.CaptureStdOut();
+        var r = command.Execute();
+        var lines = r.StdOut.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
         return ParseTools(lines);
     }
 
@@ -157,17 +138,6 @@ public class Dangit
             toolVersions.Add(new ToolVersion { PackageId = packageId, Version = version });
         }
         return toolVersions;
-    }
-
-    private Response Exec(string cmd, string ErrorId = "")
-    {
-        if (_debug)
-        {
-            AnsiConsole.MarkupLine($"[blue]Running command: {cmd}[/]");
-        }
-        var r = Shell.Term(cmd, Output.Hidden);
-        PrintError(r.stderr.Trim(), ErrorId);
-        return r;
     }
 
     private void PrintTools(List<ToolVersion> toolVersions)
